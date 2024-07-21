@@ -1,26 +1,47 @@
-import requests
-from datetime import datetime
-
-MY_LAT = 51.507351
-MY_LNG = -0.127758
-
-
-
-parameters = {
-    "Lat": MY_LAT,
-    "Lng": MY_LNG,
-    "formatted": 0
-}
-
-response = requests.get(url="https://api.sunrise-sunset.org/json?lat=51.507351&lng=-0.127758&formatted=0", params=parameters)
-response.raise_for_status()
-data = response.json()
-sunrise = int(data["results"]["sunrise"].split("T")[1].split(":")[0])
-sunset = int(data["results"]["sunset"].split("T")[1].split(":")[0])
+from turtle import Screen, Turtle
+from snake import Snake
+from food import Food
+from scoreboard import Scoreboard
+import time
+screen = Screen()
+screen.setup(width=600, height=600)
+screen.bgcolor("black")
+screen.title("My Snake Game")
 
 
-print(f"Sunrise time: {sunrise}")
-print(f"Sunset time: {sunset}")
+snake = Snake()
+food = Food()
+scoreboard = Scoreboard()
 
-time_now = datetime.now().hour
-print(f"Current time: {time_now}")
+
+screen.listen()
+screen.onkey(snake.up, "Up")
+screen.onkey(snake.down, "Down")
+screen.onkey(snake.left, "Left")
+screen.onkey(snake.right, "Right")
+
+game_is_on = True
+while game_is_on:
+    screen.update()
+    time.sleep(0.1)
+    snake.move()
+
+    if snake.head.distance(food) < 15:
+        food.refresh()
+        snake.extend()
+        scoreboard.increase_score()
+
+    if snake.head.xcor() > 280 or snake.head.xcor() < -280 or snake.head.ycor() > 280 or snake.head.ycor() < -280:
+        scoreboard.reset()
+        snake.reset()
+
+    for segment in snake.segments:
+        if segment == snake.head:
+            pass
+        elif snake.head.distance(segment) < 10:
+            scoreboard.reset()
+            snake.reset()
+
+
+
+screen.exitonclick()
